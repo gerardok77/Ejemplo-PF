@@ -304,6 +304,7 @@
       } else {
         return { dia: partes[0].padStart(2,'0'), mes: partes[1].padStart(2,'0') };
       }
+      } // fin for proxies
     }
     return null;
   }
@@ -425,6 +426,7 @@
       } else {
         actual += c;
       }
+      } // fin for proxies
     }
     campos.push(actual.trim());
     return campos;
@@ -501,14 +503,26 @@
       // Modo demo: filtra con datos de prueba
       cumpleaneros = DEMO_DATA.filter(e => esCumpleanos(e.Fecha));
     } else {
-      try {
-        const resp = await fetch(SHEETS_CSV_URL);
-        const csv = await resp.text();
-        const datos = parsearCSV(csv);
-        cumpleaneros = datos.filter(e => esCumpleanos(e.Fecha || e.fecha || e.FECHA));
-      } catch (err) {
-        console.error('Error cargando datos:', err);
-        cumpleaneros = [];
+      // Intenta fetch directo; si falla por CORS usa proxies alternativos
+      const proxies = [
+        SHEETS_CSV_URL,
+        'https://corsproxy.io/?' + encodeURIComponent(SHEETS_CSV_URL),
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEETS_CSV_URL),
+      ];
+      for (const proxyUrl of proxies) {
+        try {
+          console.log('Intentando:', proxyUrl.substring(0, 80));
+          const resp = await fetch(proxyUrl);
+          if (!resp.ok) { console.warn('HTTP error:', resp.status); continue; }
+          const csv = await resp.text();
+          console.log('CSV OK, primeros 150 chars:', csv.substring(0, 150));
+          const datos = parsearCSV(csv);
+          cumpleaneros = datos.filter(e => esCumpleanos(e.Fecha));
+          console.log('Cumpleañeros hoy:', cumpleaneros.length, cumpleaneros.map(e => e.Empleado));
+          break; // éxito, salir del loop
+        } catch (err) {
+          console.warn('Intento fallido:', err.message);
+        }
       }
     }
 
