@@ -1,3 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cumpleanos del Dia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a14; color:#fff; font-family:'DM Sans',sans-serif; width:1920px; height:1080px; overflow:hidden; position:relative; }
+  .stars { position:absolute; inset:0; background: radial-gradient(ellipse at 20% 50%,rgba(255,215,0,.06) 0%,transparent 60%), radial-gradient(ellipse at 80% 20%,rgba(255,100,180,.08) 0%,transparent 50%), radial-gradient(ellipse at 60% 80%,rgba(100,150,255,.06) 0%,transparent 50%); z-index:0; }
+  .particle { position:absolute; border-radius:50%; opacity:.4; animation:float linear infinite; z-index:0; }
+  @keyframes float { 0%{transform:translateY(1100px) rotate(0deg);opacity:0} 10%{opacity:.5} 90%{opacity:.4} 100%{transform:translateY(-100px) rotate(720deg);opacity:0} }
+  .main { position:relative; z-index:1; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 80px; }
+  .header { text-align:center; margin-bottom:60px; }
+  .header-label { font-size:20px; font-weight:300; letter-spacing:8px; text-transform:uppercase; color:rgba(255,215,0,.7); margin-bottom:12px; }
+  .header-title { font-family:'Playfair Display',serif; font-size:72px; font-weight:900; line-height:1; background:linear-gradient(135deg,#FFD700,#FF8C42,#FF6B9D); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .header-date { font-size:22px; color:rgba(255,255,255,.5); margin-top:14px; letter-spacing:2px; }
+  .carousel-wrapper { width:100%; max-width:1600px; position:relative; overflow:hidden; }
+  .carousel-track { display:flex; gap:40px; transition:transform .7s cubic-bezier(.4,0,.2,1); }
+  .card { min-width:480px; background:rgba(255,255,255,.05); border:1px solid rgba(255,215,0,.2); border-radius:24px; padding:48px 44px; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; overflow:hidden; backdrop-filter:blur(10px); flex-shrink:0; animation:cardIn .6s ease both; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#FFD700,#FF8C42,#FF6B9D,#FFD700); background-size:200% 100%; animation:shimmer 3s linear infinite; }
+  @keyframes shimmer { to{background-position:-200% 0} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .cake-icon { font-size:56px; margin-bottom:20px; animation:bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .avatar { width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,#FFD700,#FF8C42); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:36px; font-weight:700; color:#0a0a14; margin-bottom:28px; border:3px solid rgba(255,215,0,.4); box-shadow:0 0 40px rgba(255,215,0,.2); }
+  .emp-name { font-family:'Playfair Display',serif; font-size:38px; font-weight:700; color:#fff; line-height:1.15; margin-bottom:12px; }
+  .emp-cargo { font-size:20px; font-weight:500; color:#FFD700; margin-bottom:8px; letter-spacing:.5px; }
+  .emp-division { font-size:17px; font-weight:300; color:rgba(255,255,255,.55); letter-spacing:1px; text-transform:uppercase; }
+  .wish { margin-top:28px; font-size:15px; color:rgba(255,215,0,.6); font-style:italic; letter-spacing:.5px; }
+  .empty-state { text-align:center; padding:60px; }
+  .empty-icon { font-size:80px; margin-bottom:28px; opacity:.5; }
+  .empty-title { font-family:'Playfair Display',serif; font-size:42px; color:rgba(255,255,255,.4); margin-bottom:16px; }
+  .empty-sub { font-size:20px; color:rgba(255,255,255,.25); }
+  .dots { display:flex; gap:10px; margin-top:40px; justify-content:center; }
+  .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.2); transition:all .3s; }
+  .dot.active { background:#FFD700; width:28px; border-radius:4px; }
+  .footer { position:absolute; bottom:28px; right:48px; font-size:14px; color:rgba(255,255,255,.18); letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="main">
+  <div class="header">
+    <div class="header-label">&#10022; &nbsp; celebramos hoy &nbsp; &#10022;</div>
+    <div class="header-title">&#161;Feliz Cumplea&#241;os!</div>
+    <div class="header-date" id="fecha-hoy"></div>
+  </div>
+  <div id="content-area" class="carousel-wrapper">
+    <div class="carousel-track" id="track"></div>
+  </div>
+  <div class="dots" id="dots"></div>
+</div>
+<div class="footer" id="footer-hora"></div>
+
 <script>
   var CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxyEMbgjo80PJG5ojJxDao_2lwHHMJTijpCf1YDVVqG_BZpJRMn1uvj5N-E1a5ARMVAWxMyZtc4uNL/pub?gid=0&single=true&output=csv";
   var DURACION = 6000;
@@ -8,131 +64,168 @@
     var d = String(hoy.getDate()).padStart(2,"0");
     var m = String(hoy.getMonth()+1).padStart(2,"0");
     var s = String(f).trim();
-    if (s.indexOf("/") !== -1) { var p=s.split("/"); return p[0].padStart(2,"0")===d && p[1].padStart(2,"0")===m; }
-    if (s.indexOf("-") !== -1) { var p=s.split("-"); if(p[0].length===4) return p[2].padStart(2,"0")===d&&p[1].padStart(2,"0")===m; return p[0].padStart(2,"0")===d&&p[1].padStart(2,"0")===m; }
+    if (s.indexOf("/") !== -1) {
+      var p = s.split("/");
+      return p[0].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
+    }
+    if (s.indexOf("-") !== -1) {
+      var p = s.split("-");
+      if (p[0].length === 4) return p[2].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
+      return p[0].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
+    }
     return false;
   }
 
-  function iniciales(n) { if(!n) return "?"; var p=n.trim().split(" "); return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():p[0][0].toUpperCase(); }
+  function iniciales(n) {
+    if (!n) return "?";
+    var p = n.trim().split(" ");
+    return p.length >= 2 ? (p[0][0]+p[1][0]).toUpperCase() : p[0][0].toUpperCase();
+  }
 
   function crearParticulas() {
-    var col=["#FFD700","#FF8C42","#FF6B9D","#A78BFA","#60A5FA"];
-    for(var i=0;i<30;i++) {
-      var p=document.createElement("div"); p.className="particle";
-      var sz=Math.random()*8+3;
-      p.style.cssText="width:"+sz+"px;height:"+sz+"px;left:"+(Math.random()*100)+"%;background:"+col[Math.floor(Math.random()*col.length)]+";animation-duration:"+(Math.random()*12+8)+"s;animation-delay:"+(Math.random()*-15)+"s;border-radius:"+(Math.random()>0.5?"50%":"2px")+";";
-      document.body.appendChild(p);
+    var col = ["#FFD700","#FF8C42","#FF6B9D","#A78BFA","#60A5FA"];
+    for (var i = 0; i < 30; i++) {
+      var el = document.createElement("div");
+      el.className = "particle";
+      var sz = Math.random()*8+3;
+      el.style.cssText = "width:"+sz+"px;height:"+sz+"px;left:"+(Math.random()*100)+"%;"+
+        "background:"+col[Math.floor(Math.random()*col.length)]+";"+
+        "animation-duration:"+(Math.random()*12+8)+"s;"+
+        "animation-delay:"+(Math.random()*-15)+"s;"+
+        "border-radius:"+(Math.random()>0.5?"50%":"2px")+";";
+      document.body.appendChild(el);
     }
   }
 
   function crearTarjeta(e) {
-    var d=document.createElement("div"); d.className="card";
-    d.innerHTML="<div class=\"cake-icon\">&#127874;</div>"
-      +"<div class=\"avatar\">"+iniciales(e.Empleado)+"</div>"
-      +"<div class=\"emp-name\">"+e.Empleado+"</div>"
-      +"<div class=\"emp-cargo\">"+e.Cargo+"</div>"
-      +"<div class=\"emp-division\">"+e.Division+"</div>"
-      +"<div class=\"wish\">&#161;Muchas felicidades en este d&#237;a especial!</div>";
-    return d;
+    var div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML =
+      "<div class=\"cake-icon\">&#127874;</div>"+
+      "<div class=\"avatar\">"+iniciales(e.Empleado)+"</div>"+
+      "<div class=\"emp-name\">"+e.Empleado+"</div>"+
+      "<div class=\"emp-cargo\">"+e.Cargo+"</div>"+
+      "<div class=\"emp-division\">"+e.Division+"</div>"+
+      "<div class=\"wish\">&#161;Muchas felicidades en este d&#237;a especial!</div>";
+    return div;
   }
 
   function mostrarVacio() {
-    document.getElementById("content-area").innerHTML=
-      "<div class=\"empty-state\"><div class=\"empty-icon\">&#127880;</div>"
-      +"<div class=\"empty-title\">Sin cumplea&#241;os hoy</div>"
-      +"<div class=\"empty-sub\">&#161;Que tengan un excelente d&#237;a!</div></div>";
+    document.getElementById("content-area").innerHTML =
+      "<div class=\"empty-state\">"+
+      "<div class=\"empty-icon\">&#127880;</div>"+
+      "<div class=\"empty-title\">Sin cumplea&#241;os hoy</div>"+
+      "<div class=\"empty-sub\">&#161;Que tengan un excelente d&#237;a!</div>"+
+      "</div>";
   }
 
-  var currentIndex=0, total=0;
+  var currentIndex = 0, total = 0;
 
   function irA(idx) {
-    currentIndex=idx;
-    var cw=520, vis=Math.floor(1600/cw);
-    var off=Math.min(currentIndex,Math.max(0,total-vis));
-    document.getElementById("track").style.transform="translateX(-"+(off*cw)+"px)";
-    document.querySelectorAll(".dot").forEach(function(d,i){d.classList.toggle("active",i===currentIndex);});
+    currentIndex = idx;
+    var cw = 520, vis = Math.floor(1600/cw);
+    var off = Math.min(currentIndex, Math.max(0, total-vis));
+    document.getElementById("track").style.transform = "translateX(-"+(off*cw)+"px)";
+    document.querySelectorAll(".dot").forEach(function(dot, i) {
+      dot.classList.toggle("active", i === currentIndex);
+    });
   }
 
   function iniciarCarrusel(lista) {
-    var track=document.getElementById("track");
-    var dots=document.getElementById("dots");
-    total=lista.length;
-    lista.forEach(function(e){track.appendChild(crearTarjeta(e));});
-    if(total>1) {
-      lista.forEach(function(_,i){var d=document.createElement("div");d.className="dot"+(i===0?" active":"");dots.appendChild(d);});
-      setInterval(function(){currentIndex=(currentIndex+1)%total;irA(currentIndex);},DURACION);
+    var track = document.getElementById("track");
+    var dotsEl = document.getElementById("dots");
+    total = lista.length;
+    lista.forEach(function(e) { track.appendChild(crearTarjeta(e)); });
+    if (total > 1) {
+      lista.forEach(function(x, i) {
+        var dot = document.createElement("div");
+        dot.className = "dot" + (i===0 ? " active" : "");
+        dotsEl.appendChild(dot);
+      });
+      setInterval(function() { currentIndex = (currentIndex+1)%total; irA(currentIndex); }, DURACION);
     }
   }
 
   function parsearLinea(linea) {
-    var campos=[],campo="",enc=false;
-    for(var i=0;i<linea.length;i++) {
-      var c=linea[i];
-      if(c==='"') { if(enc&&linea[i+1]==='"'){campo+='"';i++;}else{enc=!enc;} }
-      else if(c===","&&!enc){campos.push(campo.trim());campo="";}
-      else{campo+=c;}
+    var campos = [], campo = "", enc = false;
+    for (var i = 0; i < linea.length; i++) {
+      var c = linea[i];
+      if (c === '"') {
+        if (enc && linea[i+1] === '"') { campo += '"'; i++; }
+        else { enc = !enc; }
+      } else if (c === "," && !enc) {
+        campos.push(campo.trim()); campo = "";
+      } else {
+        campo += c;
+      }
     }
-    campos.push(campo.trim()); return campos;
+    campos.push(campo.trim());
+    return campos;
   }
 
-  function normTxt(s){return(s||"").toLowerCase().replace(/[aeiou]/g,function(x){return x;}).trim();}
-
-  function buscarCol(enc,opts) {
-    for(var oi=0;oi<opts.length;oi++)
-      for(var ei=0;ei<enc.length;ei++)
-        if(enc[ei].toLowerCase().trim()===opts[oi].toLowerCase().trim()) return ei;
+  function buscarCol(enc, opts) {
+    for (var oi = 0; oi < opts.length; oi++)
+      for (var ei = 0; ei < enc.length; ei++)
+        if (enc[ei].toLowerCase().trim() === opts[oi].toLowerCase().trim()) return ei;
     return -1;
   }
 
   function parsearCSV(txt) {
-    var lines=txt.trim().split(/\r?\n/);
-    if(lines.length<2) return [];
-    var enc=parsearLinea(lines[0]);
-    console.log("Encabezados:",enc);
-    var iE=buscarCol(enc,["Empleado","Nombre"]);
-    var iC=buscarCol(enc,["Cargo","Puesto"]);
-    var iD=buscarCol(enc,["Division","Divisi\u00f3n","Area","\u00c1rea"]);
-    var iF=buscarCol(enc,["Fecha","Cumplea\u00f1os","Cumpleanos"]);
-    console.log("Cols Emp/Cargo/Div/Fecha:",iE,iC,iD,iF);
-    var res=[];
-    for(var i=1;i<lines.length;i++){
-      if(!lines[i].trim()) continue;
-      var v=parsearLinea(lines[i]);
-      var o={Empleado:iE!==-1?(v[iE]||""):"",Cargo:iC!==-1?(v[iC]||""):"",Division:iD!==-1?(v[iD]||""):"",Fecha:iF!==-1?(v[iF]||""):""};
-      console.log("Fila "+i+":",JSON.stringify(o));
-      if(o.Empleado) res.push(o);
+    var lines = txt.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    var enc = parsearLinea(lines[0]);
+    console.log("Encabezados:", enc);
+    var iE = buscarCol(enc, ["Empleado","Nombre"]);
+    var iC = buscarCol(enc, ["Cargo","Puesto"]);
+    var iD = buscarCol(enc, ["Division","Divisi\u00f3n","Area"]);
+    var iF = buscarCol(enc, ["Fecha","Cumplea\u00f1os","Cumpleanos"]);
+    console.log("Cols Emp/Cargo/Div/Fecha:", iE, iC, iD, iF);
+    var res = [];
+    for (var i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      var v = parsearLinea(lines[i]);
+      var o = {
+        Empleado: iE !== -1 ? (v[iE]||"") : "",
+        Cargo:    iC !== -1 ? (v[iC]||"") : "",
+        Division: iD !== -1 ? (v[iD]||"") : "",
+        Fecha:    iF !== -1 ? (v[iF]||"") : ""
+      };
+      console.log("Fila "+i+":", JSON.stringify(o));
+      if (o.Empleado) res.push(o);
     }
     return res;
   }
 
-  function actualizarReloj(){
-    var a=new Date();
-    document.getElementById("footer-hora").textContent=a.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});
+  function actualizarReloj() {
+    var a = new Date();
+    document.getElementById("footer-hora").textContent =
+      a.toLocaleTimeString("es-CL", {hour:"2-digit", minute:"2-digit"});
   }
 
-  function init(){
+  function init() {
     crearParticulas();
-    var hoy=new Date();
-    var fs=hoy.toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"});
-    document.getElementById("fecha-hoy").textContent=fs.charAt(0).toUpperCase()+fs.slice(1);
+    var hoy = new Date();
+    var fs = hoy.toLocaleDateString("es-CL", {weekday:"long", day:"numeric", month:"long"});
+    document.getElementById("fecha-hoy").textContent = fs.charAt(0).toUpperCase()+fs.slice(1);
     actualizarReloj();
-    setInterval(actualizarReloj,60000);
+    setInterval(actualizarReloj, 60000);
 
-    fetch(CSV_URL+"&nc="+Date.now(),{cache:"no-store"})
-      .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
-      .then(function(txt){
-        console.log("CSV OK:",txt.substring(0,150));
-        var datos=parsearCSV(txt);
-        var hoy=datos.filter(function(e){return esCumpleanos(e.Fecha);});
-        console.log("Cumpleaneros:",hoy.length,hoy.map(function(e){return e.Empleado;}));
-        if(hoy.length>0){iniciarCarrusel(hoy);}else{mostrarVacio();}
+    fetch(CSV_URL+"&nc="+Date.now(), {cache:"no-store"})
+      .then(function(r) { if (!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+      .then(function(txt) {
+        console.log("CSV OK:", txt.substring(0,150));
+        var datos = parsearCSV(txt);
+        var hoy = datos.filter(function(e) { return esCumpleanos(e.Fecha); });
+        console.log("Cumpleaneros:", hoy.length, hoy.map(function(e){return e.Empleado;}));
+        if (hoy.length > 0) { iniciarCarrusel(hoy); } else { mostrarVacio(); }
       })
-      .catch(function(err){console.error("Error CSV:",err.message);mostrarVacio();});
+      .catch(function(err) { console.error("Error CSV:", err.message); mostrarVacio(); });
 
-    setTimeout(function(){location.reload();},5*60*1000);
+    setTimeout(function() { location.reload(); }, 5*60*1000);
   }
 
-  init();
+  // Esperar a que el DOM este listo antes de ejecutar
+  document.addEventListener("DOMContentLoaded", function() { init(); });
 </script>
 </body>
 </html>
