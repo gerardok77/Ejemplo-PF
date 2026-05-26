@@ -272,7 +272,7 @@
   // ═══════════════════════════════════════════
   //  CONFIGURACIÓN — CAMBIA SOLO ESTA URL
   // ═══════════════════════════════════════════
-  const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxyEMbgjo80PJG5ojJxDao_2lwHHMJTijpCf1YDVVqG_BZpJRMn1uvj5N-E1a5ARMVAWxMyZtc4uNL/pub?gid=0&single=true&output=csv;''
+  const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxyEMbgjo80PJG5ojJxDao_2lwHHMJTijpCf1YDVVqG_BZpJRMn1uvj5N-E1a5ARMVAWxMyZtc4uNL/pub?gid=0&single=true&output=csv';
   //
   // Para pruebas locales sin Google Sheets, edita DEMO_DATA:
   const DEMO_DATA = [
@@ -409,16 +409,72 @@
     }
   }
 
+  // Parser CSV robusto: maneja comillas, comas dentro de campos y \r\n
+  function parsearCamposCSV(linea) {
+    const campos = [];
+    let actual = '';
+    let dentroComillas = false;
+    for (let i = 0; i < linea.length; i++) {
+      const c = linea[i];
+      if (c === '"') {
+        if (dentroComillas && linea[i+1] === '"') { actual += '"'; i++; }
+        else { dentroComillas = !dentroComillas; }
+      } else if (c === ',' && !dentroComillas) {
+        campos.push(actual.trim());
+        actual = '';
+      } else {
+        actual += c;
+      }
+    }
+    campos.push(actual.trim());
+    return campos;
+  }
+
+  // Normaliza texto: minúsculas, sin tildes, sin espacios extra
+  function normalizar(str) {
+    return (str || '').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .trim();
+  }
+
+  // Busca el índice de columna por nombre, tolerando variaciones
+  function buscarColumna(encabezados, candidatos) {
+    const normalizados = encabezados.map(normalizar);
+    for (const c of candidatos) {
+      const idx = normalizados.indexOf(normalizar(c));
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  }
+
   function parsearCSV(csv) {
-    const lineas = csv.trim().split('\n');
+    const lineas = csv.trim().split(/\r?\n/);
     if (lineas.length < 2) return [];
-    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/"/g,''));
-    return lineas.slice(1).map(linea => {
-      const valores = linea.split(',').map(v => v.trim().replace(/"/g,''));
-      const obj = {};
-      encabezados.forEach((h, i) => { obj[h] = valores[i] || ''; });
-      return obj;
-    });
+
+    const encabezados = parsearCamposCSV(lineas[0]);
+    console.log('Encabezados detectados:', encabezados);
+
+    // Busca cada columna con variantes posibles
+    const iEmpleado  = buscarColumna(encabezados, ['Empleado','empleado','Nombre','nombre','EMPLEADO']);
+    const iCargo     = buscarColumna(encabezados, ['Cargo','cargo','CARGO','Puesto','puesto']);
+    const iDivision  = buscarColumna(encabezados, ['Division','división','Division','DIVISION','Area','Área','area']);
+    const iFecha     = buscarColumna(encabezados, ['Fecha','fecha','FECHA','Cumpleaños','cumpleanos','Birthdate']);
+
+    console.log(`Columnas → Empleado:${iEmpleado} Cargo:${iCargo} Division:${iDivision} Fecha:${iFecha}`);
+
+    return lineas.slice(1)
+      .filter(l => l.trim() !== '')
+      .map((linea, idx) => {
+        const v = parsearCamposCSV(linea);
+        const obj = {
+          Empleado: iEmpleado  !== -1 ? v[iEmpleado]  || '' : '',
+          Cargo:    iCargo     !== -1 ? v[iCargo]     || '' : '',
+          Division: iDivision  !== -1 ? v[iDivision]  || '' : '',
+          Fecha:    iFecha     !== -1 ? v[iFecha]     || '' : '',
+        };
+        console.log(`Fila ${idx+1}:`, obj);
+        return obj;
+      });
   }
 
   function actualizarReloj() {
