@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cumpleaños del Día</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a14;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Fondo con estrellas animadas */
+  .stars {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(255,215,0,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(255,100,180,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(100,150,255,0.06) 0%, transparent 50%);
+    z-index: 0;
+  }
+
+  /* Partículas/confetti */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: float linear infinite;
+    z-index: 0;
+  }
+  @keyframes float {
+    0% { transform: translateY(1100px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+  }
+
+  /* Layout principal */
+  .main {
+    position: relative; z-index: 1;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .header-label {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: rgba(255,215,0,0.7);
+    margin-bottom: 12px;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #FFD700, #FF8C42, #FF6B9D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-date {
+    font-size: 22px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 14px;
+    letter-spacing: 2px;
+  }
+
+  /* Carrusel */
+  .carousel-wrapper {
+    width: 100%;
+    max-width: 1600px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 40px;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Tarjeta de empleado */
+  .card {
+    min-width: 480px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 24px;
+    padding: 48px 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+    animation: cardIn 0.6s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD700, #FF8C42, #FF6B9D, #FFD700);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cake-icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFD700, #FF8C42);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #0a0a14;
+    margin-bottom: 28px;
+    border: 3px solid rgba(255,215,0,0.4);
+    box-shadow: 0 0 40px rgba(255,215,0,0.2);
+  }
+
+  .emp-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .emp-cargo {
+    font-size: 20px;
+    font-weight: 500;
+    color: #FFD700;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .emp-division {
+    font-size: 17px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .wish {
+    margin-top: 28px;
+    font-size: 15px;
+    color: rgba(255,215,0,0.6);
+    font-style: italic;
+    letter-spacing: 0.5px;
+  }
+
+  /* Sin cumpleaños */
+  .empty-state {
+    text-align: center;
+    padding: 60px;
+  }
+  .empty-icon { font-size: 80px; margin-bottom: 28px; opacity: 0.5; }
+  .empty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 16px;
+  }
+  .empty-sub { font-size: 20px; color: rgba(255,255,255,0.25); }
+
+  /* Indicadores de paginación */
+  .dots {
+    display: flex; gap: 10px;
+    margin-top: 40px;
+    justify-content: center;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+  }
+  .dot.active {
+    background: #FFD700;
+    width: 28px;
+    border-radius: 4px;
+  }
+
+  /* Barra de progreso */
+  .progress-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD700, #FF6B9D);
+    animation: progress linear;
+    transform-origin: left;
+  }
+  @keyframes progress { from { width: 0%; } to { width: 100%; } }
+
+  /* Footer */
+  .footer {
+    position: absolute;
+    bottom: 28px; right: 48px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.18);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+  INSTRUCCIONES DE CONFIGURACIÓN:
+  1. Sube tu Excel a Google Sheets
+  2. Archivo → Publicar en la web → Formato CSV
+  3. Reemplaza GOOGLE_SHEETS_CSV_URL con la URL copiada
+  4. Asegúrate de que tu hoja tiene columnas:
+     Empleado | Cargo | Division | Fecha
+     Donde Fecha tiene formato DD/MM/YYYY o YYYY-MM-DD
+======================================================= -->
+
+<div class="stars"></div>
+<div class="main">
+  <div class="header">
+    <div class="header-label">✦ &nbsp; celebramos hoy &nbsp; ✦</div>
+    <div class="header-title">¡Feliz Cumpleaños!</div>
+    <div class="header-date" id="fecha-hoy"></div>
+  </div>
+
+  <div id="content-area" class="carousel-wrapper">
+    <div class="carousel-track" id="track"></div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+</div>
+
+<div class="footer" id="footer-hora"></div>
+
+<script>
+  // ═══════════════════════════════════════════
+  //  CONFIGURACIÓN — CAMBIA SOLO ESTA URL
+  // ═══════════════════════════════════════════
+  const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxyEMbgjo80PJG5ojJxDao_2lwHHMJTijpCf1YDVVqG_BZpJRMn1uvj5N-E1a5ARMVAWxMyZtc4uNL/pub?gid=0&single=true&output=csv;''
+  //
+  // Para pruebas locales sin Google Sheets, edita DEMO_DATA:
+  const DEMO_DATA = [
+    { Empleado: 'María González',   Cargo: 'Gerente de Proyectos',  Division: 'Tecnología',   Fecha: obtenerFechaHoy() },
+    { Empleado: 'Carlos Martínez',  Cargo: 'Analista de Datos',     Division: 'Inteligencia', Fecha: obtenerFechaHoy() },
+    { Empleado: 'Ana Rodríguez',    Cargo: 'Diseñadora UX',         Division: 'Producto',     Fecha: obtenerFechaHoy() },
+  ];
+  // ═══════════════════════════════════════════
+
+  function obtenerFechaHoy() {
+    const hoy = new Date();
+    const d = String(hoy.getDate()).padStart(2,'0');
+    const m = String(hoy.getMonth()+1).padStart(2,'0');
+    return `${d}/${m}`;
+  }
+
+  function parsearFecha(str) {
+    if (!str) return null;
+    str = str.trim();
+    // Soporta DD/MM/YYYY, D/M/YYYY, YYYY-MM-DD
+    if (str.includes('/')) {
+      const partes = str.split('/');
+      return { dia: partes[0].padStart(2,'0'), mes: partes[1].padStart(2,'0') };
+    }
+    if (str.includes('-')) {
+      const partes = str.split('-');
+      if (partes[0].length === 4) {
+        return { dia: partes[2].padStart(2,'0'), mes: partes[1].padStart(2,'0') };
+      } else {
+        return { dia: partes[0].padStart(2,'0'), mes: partes[1].padStart(2,'0') };
+      }
+    }
+    return null;
+  }
+
+  function esCumpleanos(fechaStr) {
+    const hoy = new Date();
+    const diaHoy  = String(hoy.getDate()).padStart(2,'0');
+    const mesHoy  = String(hoy.getMonth()+1).padStart(2,'0');
+    const f = parsearFecha(fechaStr);
+    if (!f) return false;
+    return f.dia === diaHoy && f.mes === mesHoy;
+  }
+
+  function iniciales(nombre) {
+    if (!nombre) return '?';
+    const partes = nombre.trim().split(' ');
+    if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
+    return partes[0][0].toUpperCase();
+  }
+
+  function crearParticulas() {
+    const colores = ['#FFD700','#FF8C42','#FF6B9D','#A78BFA','#60A5FA'];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 8 + 3;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${Math.random()*100}%;
+        background:${colores[Math.floor(Math.random()*colores.length)]};
+        animation-duration:${Math.random()*12+8}s;
+        animation-delay:${Math.random()*-15}s;
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+      `;
+      document.body.appendChild(p);
+    }
+  }
+
+  function crearTarjeta(emp) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div class="cake-icon">🎂</div>
+      <div class="avatar">${iniciales(emp.Empleado)}</div>
+      <div class="emp-name">${emp.Empleado || ''}</div>
+      <div class="emp-cargo">${emp.Cargo || ''}</div>
+      <div class="emp-division">${emp.Division || ''}</div>
+      <div class="wish">¡Muchas felicidades en este día especial!</div>
+    `;
+    return div;
+  }
+
+  function mostrarVacio() {
+    const area = document.getElementById('content-area');
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🎈</div>
+        <div class="empty-title">Sin cumpleaños hoy</div>
+        <div class="empty-sub">¡Que tengan un excelente día!</div>
+      </div>
+    `;
+  }
+
+  let currentIndex = 0;
+  let total = 0;
+  let autoSlide;
+  const DURACION_POR_TARJETA = 6000; // ms
+
+  function irA(index) {
+    currentIndex = index;
+    const track = document.getElementById('track');
+    const cardWidth = 480 + 40; // width + gap
+    const visible = Math.floor(1600 / cardWidth);
+    const maxOffset = Math.max(0, total - visible);
+    const offset = Math.min(currentIndex, maxOffset);
+    track.style.transform = `translateX(-${offset * cardWidth}px)`;
+
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  function iniciarCarrusel(cumpleaneros) {
+    const track = document.getElementById('track');
+    const dotsEl = document.getElementById('dots');
+    total = cumpleaneros.length;
+
+    cumpleaneros.forEach(emp => {
+      track.appendChild(crearTarjeta(emp));
+    });
+
+    if (total > 1) {
+      cumpleaneros.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dotsEl.appendChild(dot);
+      });
+
+      autoSlide = setInterval(() => {
+        currentIndex = (currentIndex + 1) % total;
+        irA(currentIndex);
+      }, DURACION_POR_TARJETA);
+    }
+  }
+
+  function parsearCSV(csv) {
+    const lineas = csv.trim().split('\n');
+    if (lineas.length < 2) return [];
+    const encabezados = lineas[0].split(',').map(h => h.trim().replace(/"/g,''));
+    return lineas.slice(1).map(linea => {
+      const valores = linea.split(',').map(v => v.trim().replace(/"/g,''));
+      const obj = {};
+      encabezados.forEach((h, i) => { obj[h] = valores[i] || ''; });
+      return obj;
+    });
+  }
+
+  function actualizarReloj() {
+    const el = document.getElementById('footer-hora');
+    const ahora = new Date();
+    el.textContent = ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function init() {
+    crearParticulas();
+
+    const hoy = new Date();
+    const opciones = { weekday: 'long', day: 'numeric', month: 'long' };
+    document.getElementById('fecha-hoy').textContent =
+      hoy.toLocaleDateString('es-CL', opciones).charAt(0).toUpperCase() +
+      hoy.toLocaleDateString('es-CL', opciones).slice(1);
+
+    actualizarReloj();
+    setInterval(actualizarReloj, 60000);
+
+    let cumpleaneros = [];
+
+    if (SHEETS_CSV_URL === 'PEGA_AQUI_TU_URL_DE_GOOGLE_SHEETS_CSV') {
+      // Modo demo: filtra con datos de prueba
+      cumpleaneros = DEMO_DATA.filter(e => esCumpleanos(e.Fecha));
+    } else {
+      try {
+        const resp = await fetch(SHEETS_CSV_URL);
+        const csv = await resp.text();
+        const datos = parsearCSV(csv);
+        cumpleaneros = datos.filter(e => esCumpleanos(e.Fecha || e.fecha || e.FECHA));
+      } catch (err) {
+        console.error('Error cargando datos:', err);
+        cumpleaneros = [];
+      }
+    }
+
+    if (cumpleaneros.length === 0) {
+      mostrarVacio();
+    } else {
+      iniciarCarrusel(cumpleaneros);
+    }
+
+    // Recarga los datos cada hora para mantener el contenido fresco
+    setTimeout(() => location.reload(), 60 * 60 * 1000);
+  }
+
+  init();
+</script>
+</body>
+</html>
