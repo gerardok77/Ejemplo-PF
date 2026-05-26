@@ -7,50 +7,160 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0a0a14; color:#fff; font-family:'DM Sans',sans-serif; width:1920px; height:1080px; overflow:hidden; position:relative; }
-  .stars { position:absolute; inset:0; background: radial-gradient(ellipse at 20% 50%,rgba(255,215,0,.06) 0%,transparent 60%), radial-gradient(ellipse at 80% 20%,rgba(255,100,180,.08) 0%,transparent 50%), radial-gradient(ellipse at 60% 80%,rgba(100,150,255,.06) 0%,transparent 50%); z-index:0; }
-  .particle { position:absolute; border-radius:50%; opacity:.4; animation:float linear infinite; z-index:0; }
-  @keyframes float { 0%{transform:translateY(1100px) rotate(0deg);opacity:0} 10%{opacity:.5} 90%{opacity:.4} 100%{transform:translateY(-100px) rotate(720deg);opacity:0} }
-  .main { position:relative; z-index:1; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 80px; }
-  .header { text-align:center; margin-bottom:60px; }
-  .header-label { font-size:20px; font-weight:300; letter-spacing:8px; text-transform:uppercase; color:rgba(255,215,0,.7); margin-bottom:12px; }
-  .header-title { font-family:'Playfair Display',serif; font-size:72px; font-weight:900; line-height:1; background:linear-gradient(135deg,#FFD700,#FF8C42,#FF6B9D); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-  .header-date { font-size:22px; color:rgba(255,255,255,.5); margin-top:14px; letter-spacing:2px; }
-  .carousel-wrapper { width:100%; max-width:1600px; position:relative; overflow:hidden; }
-  .carousel-track { display:flex; gap:40px; transition:transform .7s cubic-bezier(.4,0,.2,1); }
-  .card { min-width:480px; background:rgba(255,255,255,.05); border:1px solid rgba(255,215,0,.2); border-radius:24px; padding:48px 44px; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; overflow:hidden; backdrop-filter:blur(10px); flex-shrink:0; animation:cardIn .6s ease both; }
-  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#FFD700,#FF8C42,#FF6B9D,#FFD700); background-size:200% 100%; animation:shimmer 3s linear infinite; }
+  body {
+    background:#0a0a14; color:#fff;
+    font-family:'DM Sans',sans-serif;
+    width:450px; height:825px;
+    overflow:hidden; position:relative;
+  }
+  .stars {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 20% 30%,rgba(255,215,0,.08) 0%,transparent 60%),
+      radial-gradient(ellipse at 80% 10%,rgba(255,100,180,.1) 0%,transparent 50%),
+      radial-gradient(ellipse at 60% 80%,rgba(100,150,255,.07) 0%,transparent 50%);
+    z-index:0;
+  }
+  .particle {
+    position:absolute; opacity:.4;
+    animation:float linear infinite; z-index:0;
+  }
+  @keyframes float {
+    0%   { transform:translateY(850px) rotate(0deg);   opacity:0; }
+    10%  { opacity:.5; }
+    90%  { opacity:.4; }
+    100% { transform:translateY(-60px) rotate(720deg); opacity:0; }
+  }
+  .main {
+    position:relative; z-index:1;
+    width:100%; height:100%;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:30px 28px;
+    gap:0;
+  }
+
+  /* Header */
+  .header { text-align:center; margin-bottom:24px; }
+  .header-label {
+    font-size:11px; font-weight:300;
+    letter-spacing:5px; text-transform:uppercase;
+    color:rgba(255,215,0,.7); margin-bottom:8px;
+  }
+  .header-title {
+    font-family:'Playfair Display',serif;
+    font-size:36px; font-weight:900; line-height:1.1;
+    background:linear-gradient(135deg,#FFD700,#FF8C42,#FF6B9D);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .header-date {
+    font-size:13px; color:rgba(255,255,255,.45);
+    margin-top:8px; letter-spacing:1px;
+  }
+
+  /* Carrusel */
+  .carousel-wrapper { width:100%; position:relative; overflow:hidden; }
+  .carousel-track   { display:flex; transition:transform .7s cubic-bezier(.4,0,.2,1); }
+
+  /* Tarjeta */
+  .card {
+    min-width:100%; width:100%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,215,0,.2);
+    border-radius:20px;
+    padding:28px 24px 24px;
+    display:flex; flex-direction:column;
+    align-items:center; text-align:center;
+    position:relative; overflow:hidden;
+    backdrop-filter:blur(10px);
+    flex-shrink:0;
+    animation:cardIn .6s ease both;
+  }
+  .card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,#FFD700,#FF8C42,#FF6B9D,#FFD700);
+    background-size:200% 100%; animation:shimmer 3s linear infinite;
+  }
   @keyframes shimmer { to{background-position:-200% 0} }
-  @keyframes cardIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-  .cake-icon { font-size:56px; margin-bottom:20px; animation:bounce 2s ease-in-out infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  .avatar { width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,#FFD700,#FF8C42); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:36px; font-weight:700; color:#0a0a14; margin-bottom:28px; border:3px solid rgba(255,215,0,.4); box-shadow:0 0 40px rgba(255,215,0,.2); }
-  .emp-name { font-family:'Playfair Display',serif; font-size:38px; font-weight:700; color:#fff; line-height:1.15; margin-bottom:12px; }
-  .emp-cargo { font-size:20px; font-weight:500; color:#FFD700; margin-bottom:8px; letter-spacing:.5px; }
-  .emp-division { font-size:17px; font-weight:300; color:rgba(255,255,255,.55); letter-spacing:1px; text-transform:uppercase; }
-  .wish { margin-top:28px; font-size:15px; color:rgba(255,215,0,.6); font-style:italic; letter-spacing:.5px; }
-  .empty-state { text-align:center; padding:60px; }
-  .empty-icon { font-size:80px; margin-bottom:28px; opacity:.5; }
-  .empty-title { font-family:'Playfair Display',serif; font-size:42px; color:rgba(255,255,255,.4); margin-bottom:16px; }
-  .empty-sub { font-size:20px; color:rgba(255,255,255,.25); }
-  .dots { display:flex; gap:10px; margin-top:40px; justify-content:center; }
-  .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.2); transition:all .3s; }
-  .dot.active { background:#FFD700; width:28px; border-radius:4px; }
-  .footer { position:absolute; bottom:28px; right:48px; font-size:14px; color:rgba(255,255,255,.18); letter-spacing:1px; }
+  @keyframes cardIn  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .cake-icon { font-size:38px; margin-bottom:12px; animation:bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+  .avatar {
+    width:80px; height:80px; border-radius:50%;
+    background:linear-gradient(135deg,#FFD700,#FF8C42);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:28px; font-weight:700;
+    color:#0a0a14; margin-bottom:16px;
+    border:2px solid rgba(255,215,0,.4);
+    box-shadow:0 0 28px rgba(255,215,0,.25);
+  }
+  .emp-name {
+    font-family:'Playfair Display',serif;
+    font-size:26px; font-weight:700; color:#fff;
+    line-height:1.2; margin-bottom:10px;
+  }
+  .emp-cargo {
+    font-size:14px; font-weight:500; color:#FFD700;
+    margin-bottom:6px; letter-spacing:.4px;
+  }
+  .emp-division {
+    font-size:12px; font-weight:300;
+    color:rgba(255,255,255,.5);
+    letter-spacing:1.5px; text-transform:uppercase;
+  }
+  .wish {
+    margin-top:18px; font-size:12px;
+    color:rgba(255,215,0,.55); font-style:italic;
+    letter-spacing:.3px;
+    border-top:1px solid rgba(255,215,0,.12);
+    padding-top:14px; width:100%;
+  }
+
+  /* Sin cumpleanos */
+  .empty-state { text-align:center; padding:30px 20px; }
+  .empty-icon  { font-size:56px; margin-bottom:18px; opacity:.5; }
+  .empty-title {
+    font-family:'Playfair Display',serif;
+    font-size:26px; color:rgba(255,255,255,.35); margin-bottom:10px;
+  }
+  .empty-sub   { font-size:14px; color:rgba(255,255,255,.2); }
+
+  /* Dots */
+  .dots { display:flex; gap:7px; margin-top:18px; justify-content:center; }
+  .dot  { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2); transition:all .3s; }
+  .dot.active { background:#FFD700; width:20px; border-radius:3px; }
+
+  /* Contador de cumpleaneros */
+  .counter {
+    margin-top:14px; font-size:11px;
+    color:rgba(255,215,0,.45); letter-spacing:1px;
+    text-transform:uppercase;
+  }
+
+  /* Footer reloj */
+  .footer {
+    position:absolute; bottom:14px; right:20px;
+    font-size:11px; color:rgba(255,255,255,.2); letter-spacing:1px;
+  }
 </style>
 </head>
 <body>
 <div class="stars"></div>
 <div class="main">
   <div class="header">
-    <div class="header-label">&#10022; &nbsp; celebramos hoy &nbsp; &#10022;</div>
+    <div class="header-label">&#10022; celebramos hoy &#10022;</div>
     <div class="header-title">&#161;Feliz Cumplea&#241;os!</div>
     <div class="header-date" id="fecha-hoy"></div>
   </div>
+
   <div id="content-area" class="carousel-wrapper">
     <div class="carousel-track" id="track"></div>
   </div>
+
   <div class="dots" id="dots"></div>
+  <div class="counter" id="counter"></div>
 </div>
 <div class="footer" id="footer-hora"></div>
 
@@ -66,12 +176,12 @@
     var s = String(f).trim();
     if (s.indexOf("/") !== -1) {
       var p = s.split("/");
-      return p[0].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
+      return p[0].padStart(2,"0")===d && p[1].padStart(2,"0")===m;
     }
     if (s.indexOf("-") !== -1) {
       var p = s.split("-");
-      if (p[0].length === 4) return p[2].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
-      return p[0].padStart(2,"0") === d && p[1].padStart(2,"0") === m;
+      if (p[0].length===4) return p[2].padStart(2,"0")===d && p[1].padStart(2,"0")===m;
+      return p[0].padStart(2,"0")===d && p[1].padStart(2,"0")===m;
     }
     return false;
   }
@@ -84,20 +194,21 @@
 
   function crearParticulas() {
     var col = ["#FFD700","#FF8C42","#FF6B9D","#A78BFA","#60A5FA"];
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 20; i++) {
       var el = document.createElement("div");
       el.className = "particle";
-      var sz = Math.random()*8+3;
-      el.style.cssText = "width:"+sz+"px;height:"+sz+"px;left:"+(Math.random()*100)+"%;"+
+      var sz = Math.random()*6+2;
+      el.style.cssText =
+        "width:"+sz+"px;height:"+sz+"px;left:"+(Math.random()*100)+"%;"+
         "background:"+col[Math.floor(Math.random()*col.length)]+";"+
-        "animation-duration:"+(Math.random()*12+8)+"s;"+
-        "animation-delay:"+(Math.random()*-15)+"s;"+
+        "animation-duration:"+(Math.random()*10+6)+"s;"+
+        "animation-delay:"+(Math.random()*-12)+"s;"+
         "border-radius:"+(Math.random()>0.5?"50%":"2px")+";";
       document.body.appendChild(el);
     }
   }
 
-  function crearTarjeta(e) {
+  function crearTarjeta(e, idx, total) {
     var div = document.createElement("div");
     div.className = "card";
     div.innerHTML =
@@ -123,50 +234,51 @@
 
   function irA(idx) {
     currentIndex = idx;
-    var cw = 520, vis = Math.floor(1600/cw);
-    var off = Math.min(currentIndex, Math.max(0, total-vis));
-    document.getElementById("track").style.transform = "translateX(-"+(off*cw)+"px)";
+    var w = document.getElementById("track").parentElement.offsetWidth;
+    document.getElementById("track").style.transform = "translateX(-"+(currentIndex*w)+"px)";
     document.querySelectorAll(".dot").forEach(function(dot, i) {
       dot.classList.toggle("active", i === currentIndex);
     });
+    if (total > 1) {
+      document.getElementById("counter").textContent = (currentIndex+1)+" de "+total;
+    }
   }
 
   function iniciarCarrusel(lista) {
     var track = document.getElementById("track");
     var dotsEl = document.getElementById("dots");
     total = lista.length;
-    lista.forEach(function(e) { track.appendChild(crearTarjeta(e)); });
+    lista.forEach(function(e, i) { track.appendChild(crearTarjeta(e, i, total)); });
     if (total > 1) {
       lista.forEach(function(x, i) {
         var dot = document.createElement("div");
-        dot.className = "dot" + (i===0 ? " active" : "");
+        dot.className = "dot"+(i===0?" active":"");
         dotsEl.appendChild(dot);
       });
-      setInterval(function() { currentIndex = (currentIndex+1)%total; irA(currentIndex); }, DURACION);
+      document.getElementById("counter").textContent = "1 de "+total;
+      setInterval(function() { currentIndex=(currentIndex+1)%total; irA(currentIndex); }, DURACION);
     }
   }
 
   function parsearLinea(linea) {
-    var campos = [], campo = "", enc = false;
-    for (var i = 0; i < linea.length; i++) {
+    var campos=[], campo="", enc=false;
+    for (var i=0; i<linea.length; i++) {
       var c = linea[i];
-      if (c === '"') {
-        if (enc && linea[i+1] === '"') { campo += '"'; i++; }
-        else { enc = !enc; }
-      } else if (c === "," && !enc) {
-        campos.push(campo.trim()); campo = "";
-      } else {
-        campo += c;
-      }
+      if (c==='"') {
+        if (enc && linea[i+1]==='"') { campo+='"'; i++; }
+        else { enc=!enc; }
+      } else if (c==="," && !enc) {
+        campos.push(campo.trim()); campo="";
+      } else { campo+=c; }
     }
     campos.push(campo.trim());
     return campos;
   }
 
   function buscarCol(enc, opts) {
-    for (var oi = 0; oi < opts.length; oi++)
-      for (var ei = 0; ei < enc.length; ei++)
-        if (enc[ei].toLowerCase().trim() === opts[oi].toLowerCase().trim()) return ei;
+    for (var oi=0; oi<opts.length; oi++)
+      for (var ei=0; ei<enc.length; ei++)
+        if (enc[ei].toLowerCase().trim()===opts[oi].toLowerCase().trim()) return ei;
     return -1;
   }
 
@@ -179,16 +291,16 @@
     var iC = buscarCol(enc, ["Cargo","Puesto"]);
     var iD = buscarCol(enc, ["Division","Divisi\u00f3n","Area"]);
     var iF = buscarCol(enc, ["Fecha","Cumplea\u00f1os","Cumpleanos"]);
-    console.log("Cols Emp/Cargo/Div/Fecha:", iE, iC, iD, iF);
+    console.log("Cols:", iE, iC, iD, iF);
     var res = [];
-    for (var i = 1; i < lines.length; i++) {
+    for (var i=1; i<lines.length; i++) {
       if (!lines[i].trim()) continue;
       var v = parsearLinea(lines[i]);
       var o = {
-        Empleado: iE !== -1 ? (v[iE]||"") : "",
-        Cargo:    iC !== -1 ? (v[iC]||"") : "",
-        Division: iD !== -1 ? (v[iD]||"") : "",
-        Fecha:    iF !== -1 ? (v[iF]||"") : ""
+        Empleado: iE!==-1?(v[iE]||""):"",
+        Cargo:    iC!==-1?(v[iC]||""):"",
+        Division: iD!==-1?(v[iD]||""):"",
+        Fecha:    iF!==-1?(v[iF]||""):""
       };
       console.log("Fila "+i+":", JSON.stringify(o));
       if (o.Empleado) res.push(o);
@@ -199,33 +311,32 @@
   function actualizarReloj() {
     var a = new Date();
     document.getElementById("footer-hora").textContent =
-      a.toLocaleTimeString("es-CL", {hour:"2-digit", minute:"2-digit"});
+      a.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});
   }
 
   function init() {
     crearParticulas();
     var hoy = new Date();
-    var fs = hoy.toLocaleDateString("es-CL", {weekday:"long", day:"numeric", month:"long"});
+    var fs = hoy.toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"});
     document.getElementById("fecha-hoy").textContent = fs.charAt(0).toUpperCase()+fs.slice(1);
     actualizarReloj();
     setInterval(actualizarReloj, 60000);
 
     fetch(CSV_URL+"&nc="+Date.now(), {cache:"no-store"})
-      .then(function(r) { if (!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+      .then(function(r) { if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
       .then(function(txt) {
         console.log("CSV OK:", txt.substring(0,150));
         var datos = parsearCSV(txt);
-        var hoy = datos.filter(function(e) { return esCumpleanos(e.Fecha); });
+        var hoy = datos.filter(function(e){ return esCumpleanos(e.Fecha); });
         console.log("Cumpleaneros:", hoy.length, hoy.map(function(e){return e.Empleado;}));
         if (hoy.length > 0) { iniciarCarrusel(hoy); } else { mostrarVacio(); }
       })
       .catch(function(err) { console.error("Error CSV:", err.message); mostrarVacio(); });
 
-    setTimeout(function() { location.reload(); }, 5*60*1000);
+    setTimeout(function(){ location.reload(); }, 5*60*1000);
   }
 
-  // Esperar a que el DOM este listo antes de ejecutar
-  document.addEventListener("DOMContentLoaded", function() { init(); });
+  document.addEventListener("DOMContentLoaded", function(){ init(); });
 </script>
 </body>
 </html>
